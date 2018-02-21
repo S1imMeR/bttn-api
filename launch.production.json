@@ -1,0 +1,15 @@
+{
+  "apps": [
+    {
+      "name": "bttn-api",
+      "script": "./index.js",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "error_file": "./logs/bocono-api.stderr.log",
+      "autorestart": true,
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}

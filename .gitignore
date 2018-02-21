@@ -1,3 +1,4 @@
 dist
 node_modules
 events.db
+.DS_Store
