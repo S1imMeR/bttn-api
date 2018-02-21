@@ -25,6 +25,12 @@ app.use('/event', eventRouter);
 
 app.use(Raven.errorHandler());
 
+app.get('/health-check', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+  });
+});
+
 wss.on('connection', async (ws) => {
   try {
     const winners = await getWinners();
