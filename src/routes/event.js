@@ -1,6 +1,6 @@
 import request from 'request';
 import { Router } from 'express'
-import { insertButtonClickedEvent, getAllEventsCount } from '../db/event';
+import { insertButtonClickedEvent, getAllEventsCount, getWinnersCountToday } from '../db/event';
 import config from '../config';
 import { sendSuccessToButton, sendFailToButton } from '../api/index';
 import { wss } from '../index';
@@ -32,16 +32,25 @@ router.post('/', async (req, res, next) => {
       buttonId,
       cashRegister,
       isWinner,
+      divisor: config.winnerDivisor,
     });
 
     if (isWinner) {
       sendSuccessToButton(callbackUrl);
-      console.log(insertedEvent);
       sendMessageToAllClients(wss, {
         type: 'LAST_WINNER',
         data: {
           cashRegister,
           eventId: insertedEvent._id,
+        },
+      });
+
+      const winnersCount = await getWinnersCountToday();
+
+      sendMessageToAllClients(wss, {
+        type: 'WINNERS_COUNT_TODAY',
+        data: {
+          count: winnersCount,
         },
       });
       
@@ -65,6 +74,14 @@ router.post('/', async (req, res, next) => {
     'Connection': 'close',
     'Content-Length': '0',
   }).status(200).send();
+});
+
+router.get('/today', async (req, res) => {
+  const count = await getWinnersCountToday();
+
+  res.json({
+    count,
+  })
 });
 
 export default router;

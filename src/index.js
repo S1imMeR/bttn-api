@@ -5,7 +5,7 @@ import http from 'http';
 import WebSocket from 'ws';
 import Raven from 'raven';
 import config from './config';
-import { getWinners } from './db/event';
+import { getWinnersCountToday } from './db/event';
 import eventRouter from './routes/event';
 import { sendMessageToAllClients, formatWinners } from './utils';
 const app = express();
@@ -33,12 +33,12 @@ app.get('/health-check', (req, res) => {
 
 wss.on('connection', async (ws) => {
   try {
-    const winners = await getWinners();
+    const winnersCount = await getWinnersCountToday();
   
     ws.send(JSON.stringify({
-      type: 'LAST_WINNERS_LIST',
+      type: 'WINNERS_COUNT_TODAY',
       data: {
-        winners: formatWinners(winners),
+        count: winnersCount,
       },
     }));
   } catch(err) {

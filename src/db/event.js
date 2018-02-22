@@ -54,3 +54,21 @@ export function getWinners() {
       });
   });
 }
+
+export function getWinnersCountToday() {
+  const today = new Date();
+  
+  today.setHours(0,0,0,0);
+
+  return new Promise((resolve, reject) => {
+    db.events
+      .count({ isWinner: true, createdAt: {$gte: today} }, (err, count) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        return resolve(count);
+      });
+  });
+}
