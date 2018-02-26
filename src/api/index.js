@@ -6,7 +6,7 @@ function sendResponseToButton(callbackUrl, responseMessage) {
     uri: callbackUrl,
     method: 'POST',
     headers: {
-      'X-Api-Key': config.get('ttnApiKey'),
+      'X-Api-Key': '201410AK5a6b2cfboBV3BWnJu-jWn4VP7QBhaePMTL3QbdPyXU0VHK3YwMg69Dcc',
     },
     json: {
       result: responseMessage,
@@ -15,9 +15,9 @@ function sendResponseToButton(callbackUrl, responseMessage) {
 }
 
 export function sendSuccessToButton(callbackUrl) {
-  sendResponseToButton(callbackUrl, config.get('callbackSuccessResultMessage'));
+  sendResponseToButton(callbackUrl, 'success');
 }
 
 export function sendFailToButton(callbackUrl) {
-  sendResponseToButton(callbackUrl, config.get('callbackFailResultMessage'));
+  sendResponseToButton(callbackUrl, 'fail');
 }
