@@ -12,8 +12,7 @@ const app = express();
 const server = http.createServer(app);
 export const wss = new WebSocket.Server({ server });
 
-
-Raven.config(config.sentryDSN, {
+Raven.config(config.get('sentryDSN'), {
   captureUnhandledRejections: true,
 }).install();
 
@@ -47,12 +46,20 @@ wss.on('connection', async (ws) => {
   }
 
   ws.on('message', (message) => {
-      //log the received message and send it back to the client
-      console.log('received: %s', message);
-      ws.send(`Hello, you sent -> ${message}`);
+    const parsedMessage = JSON.parse(message);
+
+    if (parsedMessage.type !== 'SAVE_OPTIONS' || !parsedMessage.options) {
+      return;
+    }
+
+    const {options} = parsedMessage;
+    
+    if (options.winnerDivider) {
+      config.set('winnerDivider', options.winnerDivider);
+    }
   });
 
-  ws.on('error', () => console.log('errored'));
+  ws.on('error', (err) => console.log('errored', err));
 });
 
 server.listen(8081, () => console.log('Example app listening on port 8081!'));

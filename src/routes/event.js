@@ -25,14 +25,14 @@ router.post('/', async (req, res, next) => {
    }
 
   try {
+    const winnerDivider = config.get('winnerDivider');
     const allEventsCount = await getAllEventsCount();
-    const isWinner = (allEventsCount + 1) % config.winnerDivisor === 0;
-
+    const isWinner = (allEventsCount + 1) % winnerDivider === 0;
     const insertedEvent = await insertButtonClickedEvent({
       buttonId,
       cashRegister,
       isWinner,
-      divisor: config.winnerDivisor,
+      divisor: winnerDivider,
     });
 
     if (isWinner) {
