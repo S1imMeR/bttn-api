@@ -1,6 +1,6 @@
 import request from 'request';
 import { Router } from 'express'
-import { insertButtonClickedEvent, getAllEventsCount, getWinnersCountToday } from '../db/event';
+import { insertButtonClickedEvent, getAllEventsCount, getWinnersCountToday, getAllEvents, getAllWinnersToday, getAllWinners, getAllEventsToday } from '../db/event';
 import config from '../config';
 import { sendSuccessToButton, sendFailToButton } from '../api/index';
 import { wss } from '../index';
@@ -77,11 +77,27 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/today', async (req, res) => {
-  const count = await getWinnersCountToday();
+  const events = await getAllEventsToday();
 
-  res.json({
-    count,
-  })
+  res.json(events)
+});
+
+router.get('/today/winners', async (req, res) => {
+  const events = await getAllWinnersToday();
+
+  res.json(events);
+})
+
+router.get('/all', async (req, res) => {
+  const events = await getAllEvents();
+
+  res.json(events);
+});
+
+router.get('/all/winners', async (req, res) => {
+  const events = await getAllWinners();
+
+  res.json(events);
 });
 
 export default router;

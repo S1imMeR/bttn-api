@@ -72,3 +72,79 @@ export function getWinnersCountToday() {
       });
   });
 }
+
+export function getAllWinnersToday() {
+  const today = new Date();
+  
+  today.setHours(0,0,0,0);
+
+  return new Promise((resolve, reject) => {
+    db.events
+      .find({ isWinner: true, createdAt: {$gte: today} })
+      .sort({ createdAt: -1 })
+      .exec((err, docs) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        return resolve(docs);
+      });
+  });
+}
+
+export function getAllWinners() {
+  const today = new Date();
+  
+  today.setHours(0,0,0,0);
+
+  return new Promise((resolve, reject) => {
+    db.events
+      .find({ isWinner: true })
+      .sort({ createdAt: -1 })
+      .exec((err, docs) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        return resolve(docs);
+      });
+  });
+}
+
+export function getAllEventsToday() {
+  const today = new Date();
+  
+  today.setHours(0,0,0,0);
+
+  return new Promise((resolve, reject) => {
+    db.events
+      .find({ createdAt: {$gte: today} })
+      .sort({ createdAt: -1 })
+      .exec((err, docs) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        return resolve(docs);
+      });
+  });
+}
+
+export function getAllEvents() {
+  return new Promise((resolve, reject) => {
+    db.events
+      .find()
+      .sort({ createdAt: -1 })
+      .exec((err, docs) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        return resolve(docs);
+      });
+  });
+}
