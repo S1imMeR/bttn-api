@@ -16,13 +16,13 @@ router.post('/', async (req, res, next) => {
     CASHREGISTER: cashRegister,
    } = req.body;
 
-   if (!callbackUrl) {
+  if (!callbackUrl) {
     return next(new Error('Callback URL must be specified for the event'));
   }
    
-   if (!cashRegister) {
-     return next(new Error('Cash register must be specified for the event'));
-   }
+  if (!cashRegister) {
+    return next(new Error('Cash register must be specified for the event'));
+  }
 
   try {
     const winnerDivider = config.get('winnerDivider');
@@ -98,6 +98,62 @@ router.get('/all/winners', async (req, res) => {
   const events = await getAllWinners();
 
   res.json(events);
+});
+
+
+// ** For local conversation ** //
+router.get('/:cashRegister', async (req, res) => {
+  const {cashRegister} = req.params;
+
+  try {
+    const winnerDivider = config.get('winnerDivider');
+    const allEventsCount = await getAllEventsCount();
+    const isWinner = (allEventsCount + 1) % winnerDivider === 0;
+    const insertedEvent = await insertButtonClickedEvent({
+      cashRegister,
+      isWinner,
+      divisor: winnerDivider,
+    });
+
+    if (isWinner) {
+      res.status(200).send();
+      sendMessageToAllClients(wss, {
+        type: 'LAST_WINNER',
+        data: {
+          cashRegister,
+          eventId: insertedEvent._id,
+        },
+      });
+
+      const winnersCount = await getWinnersCountToday();
+
+      sendMessageToAllClients(wss, {
+        type: 'WINNERS_COUNT_TODAY',
+        data: {
+          count: winnersCount,
+        },
+      });
+      
+    } else {
+      res.status(400).send();
+      sendMessageToAllClients(wss, {
+        type: 'LAST_LOSER',
+        data: {
+          cashRegister,
+          eventId: insertedEvent._id,
+        },
+      });
+    }
+
+  } catch (err) {
+    console.log('Error', err);
+    next(new Error(err));
+  }
+
+  res.set({
+    'Connection': 'close',
+    'Content-Length': '0',
+  }).status(200).send();
 });
 
 export default router;
