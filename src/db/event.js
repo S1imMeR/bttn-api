@@ -3,11 +3,11 @@ import db from './index';
 // data: {buttonId: number; cashRegister: string; isWinner: boolean;}
 
 export function insertButtonClickedEvent(data) {
-
+/*
   ws.send(JSON.stringify({
     type: 'TEST2',
   }));
-
+*/
   return new Promise((resolve, reject) => {
     db.events.insert(data, (err, insertedDocument) => {
       if (err) {
