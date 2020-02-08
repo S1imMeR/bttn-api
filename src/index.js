@@ -33,13 +33,18 @@ app.get('/health-check', (req, res) => {
 wss.on('connection', async (ws) => {
   try {
     const eventsCount = await getAllEventsCount();
-  
+    
     ws.send(JSON.stringify({
       type: 'EVENTS_COUNT_TODAY',
       data: {
         count: eventsCount,
       },
     }));
+
+    ws.send(JSON.stringify({
+      type: 'TEST',
+    }));
+
   } catch(err) {
     console.log('Error while sending list of events');
     console.log(err);
