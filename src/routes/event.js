@@ -104,6 +104,12 @@ router.get('/all/winners', async (req, res) => {
 // ** For local conversation ** //
 router.get('/:cashRegister', async (req, res) => {
   const {cashRegister} = req.params;
+ 
+
+  // Пытаюсь получить ВСЕ сообщения и раскидать на все клиенты
+  sendMessageToAllClients(wss, {
+    type: 'EVENT!!!',
+  })
 
   try {
     const winnerDivider = config.get('winnerDivider');
@@ -114,13 +120,13 @@ router.get('/:cashRegister', async (req, res) => {
       isWinner,
       divisor: winnerDivider,
     });
-    sendMessageToAllClients(wss, {
+   /* sendMessageToAllClients(wss, {
       type: 'EVENT!!!',
       data: {
         eventId: insertedEvent._id,
       }
     })
-
+*/
     if (isWinner) {
       res.status(200).send();
       sendMessageToAllClients(wss, {
