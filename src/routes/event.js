@@ -9,6 +9,13 @@ import { sendMessageToAllClients } from '../utils';
 const router = Router();
 
 router.post('/', async (req, res, next) => {
+  
+  // Пытаюсь получить ВСЕ сообщения и раскидать на все клиенты
+  sendMessageToAllClients(wss, {
+    type: 'EVENT!!!',
+    data: {}
+  })
+  
   const {
     CALLBACKURL: callbackUrl,
     ID: buttonId,
