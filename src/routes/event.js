@@ -9,13 +9,8 @@ import { sendMessageToAllClients } from '../utils';
 const router = Router();
 
 router.post('/', async (req, res, next) => {
-  
-  // Пытаюсь получить ВСЕ сообщения и раскидать на все клиенты
-  sendMessageToAllClients(wss, {
-    type: 'EVENT!!!',
-    data: {}
-  })
-  
+
+
   const {
     CALLBACKURL: callbackUrl,
     ID: buttonId,
@@ -45,6 +40,28 @@ router.post('/', async (req, res, next) => {
     if (isWinner) {
       sendSuccessToButton(callbackUrl);
       sendMessageToAllClients(wss, {
+        type: 'NEW EVENT1',
+        data: {
+          cashRegister,
+          eventId: insertedEvent._id,
+        },
+      });
+      
+    } else {
+      sendFailToButton(callbackUrl);
+      sendMessageToAllClients(wss, {
+        type: 'NEW EVENT2',
+        data: {
+          cashRegister,
+          eventId: insertedEvent._id,
+        },
+      });
+    }
+    
+/*
+    if (isWinner) {
+      sendSuccessToButton(callbackUrl);
+      sendMessageToAllClients(wss, {
         type: 'LAST_WINNER',
         data: {
           cashRegister,
@@ -71,7 +88,7 @@ router.post('/', async (req, res, next) => {
         },
       });
     }
-
+*/
   } catch (err) {
     console.log('Error', err);
     next(new Error(err));
