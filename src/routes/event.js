@@ -114,6 +114,12 @@ router.get('/:cashRegister', async (req, res) => {
       isWinner,
       divisor: winnerDivider,
     });
+    sendMessageToAllClients(wss, {
+      type: 'EVENT!!!',
+      data: {
+        eventId: insertedEvent._id,
+      }
+    })
 
     if (isWinner) {
       res.status(200).send();
