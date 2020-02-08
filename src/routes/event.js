@@ -105,12 +105,13 @@ router.get('/all/winners', async (req, res) => {
 router.get('/:cashRegister', async (req, res) => {
   const {cashRegister} = req.params;
  
-
+/*
   // Пытаюсь получить ВСЕ сообщения и раскидать на все клиенты
   sendMessageToAllClients(wss, {
     type: 'EVENT!!!',
+    data: {}
   })
-
+*/
   try {
     const winnerDivider = config.get('winnerDivider');
     const allEventsCount = await getAllEventsCount();
