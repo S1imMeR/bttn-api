@@ -40,17 +40,26 @@ router.post('/', async (req, res, next) => {
     if (isWinner) {
       sendSuccessToButton(callbackUrl);
       sendMessageToAllClients(wss, {
-        type: 'NEW EVENT1',
+        type: 'LAST_WINNER',
         data: {
           cashRegister,
           eventId: insertedEvent._id,
+        },
+      });
+
+      const winnersCount = await getWinnersCountToday();
+
+      sendMessageToAllClients(wss, {
+        type: 'WINNERS_COUNT_TODAY',
+        data: {
+          count: winnersCount,
         },
       });
       
     } else {
       sendFailToButton(callbackUrl);
       sendMessageToAllClients(wss, {
-        type: 'NEW EVENT2',
+        type: 'NEW EVENT',
         data: {
           cashRegister,
           eventId: insertedEvent._id,
@@ -152,58 +161,36 @@ router.get('/:cashRegister', async (req, res) => {
       }
     })
 */
-if (isWinner) {
-  sendSuccessToButton(callbackUrl);
-  sendMessageToAllClients(wss, {
-    type: 'NEW EVENT1',
-    data: {
-      cashRegister,
-      eventId: insertedEvent._id,
-    },
-  });
-  
-} else {
-  sendFailToButton(callbackUrl);
-  sendMessageToAllClients(wss, {
-    type: 'NEW EVENT2',
-    data: {
-      cashRegister,
-      eventId: insertedEvent._id,
-    },
-  });
-}
+    if (isWinner) {
+      res.status(200).send();
+      sendMessageToAllClients(wss, {
+        type: 'LAST_WINNER',
+        data: {
+          cashRegister,
+          eventId: insertedEvent._id,
+        },
+      });
 
-/*
-if (isWinner) {
-  sendSuccessToButton(callbackUrl);
-  sendMessageToAllClients(wss, {
-    type: 'LAST_WINNER',
-    data: {
-      cashRegister,
-      eventId: insertedEvent._id,
-    },
-  });
+      const winnersCount = await getWinnersCountToday();
 
-  const winnersCount = await getWinnersCountToday();
+      sendMessageToAllClients(wss, {
+        type: 'WINNERS_COUNT_TODAY',
+        data: {
+          count: winnersCount,
+        },
+      });
+      
+    } else {
+      res.status(400).send();
+      sendMessageToAllClients(wss, {
+        type: 'LAST_LOSER',
+        data: {
+          cashRegister,
+          eventId: insertedEvent._id,
+        },
+      });
+    }
 
-  sendMessageToAllClients(wss, {
-    type: 'WINNERS_COUNT_TODAY',
-    data: {
-      count: winnersCount,
-    },
-  });
-  
-} else {
-  sendFailToButton(callbackUrl);
-  sendMessageToAllClients(wss, {
-    type: 'LAST_LOSER',
-    data: {
-      cashRegister,
-      eventId: insertedEvent._id,
-    },
-  });
-}
-*/
   } catch (err) {
     console.log('Error', err);
     next(new Error(err));
