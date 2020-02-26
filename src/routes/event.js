@@ -10,19 +10,18 @@ const router = Router();
 
 router.post('/', async (req, res, next) => {
 
-
   const {
     CALLBACKURL: callbackUrl,
     ID: buttonId,
     // EID: eventId,
-    CASHREGISTER: cashRegister,
+    Event: Event,
    } = req.body;
 
   if (!callbackUrl) {
     return next(new Error('Callback URL must be specified for the event'));
   }
    
-  if (!cashRegister) {
+  if (!Event) {
     return next(new Error('Cash register must be specified for the event'));
   }
 
@@ -32,7 +31,7 @@ router.post('/', async (req, res, next) => {
     const isWinner = (allEventsCount + 1) % winnerDivider === 0;
     const insertedEvent = await insertButtonClickedEvent({
       buttonId,
-      cashRegister,
+      Event,
       isWinner,
       divisor: winnerDivider,
     });
@@ -42,7 +41,7 @@ router.post('/', async (req, res, next) => {
       sendMessageToAllClients(wss, {
         type: 'LAST_WINNER',
         data: {
-          cashRegister,
+          Event,
           eventId: insertedEvent._id,
         },
       });
@@ -55,49 +54,18 @@ router.post('/', async (req, res, next) => {
           count: winnersCount,
         },
       });
-      
+    
     } else {
       sendFailToButton(callbackUrl);
       sendMessageToAllClients(wss, {
         type: 'NEW EVENT',
         data: {
-          cashRegister,
+          Event,
           eventId: insertedEvent._id,
         },
       });
     }
-    
-/*
-    if (isWinner) {
-      sendSuccessToButton(callbackUrl);
-      sendMessageToAllClients(wss, {
-        type: 'LAST_WINNER',
-        data: {
-          cashRegister,
-          eventId: insertedEvent._id,
-        },
-      });
 
-      const winnersCount = await getWinnersCountToday();
-
-      sendMessageToAllClients(wss, {
-        type: 'WINNERS_COUNT_TODAY',
-        data: {
-          count: winnersCount,
-        },
-      });
-      
-    } else {
-      sendFailToButton(callbackUrl);
-      sendMessageToAllClients(wss, {
-        type: 'LAST_LOSER',
-        data: {
-          cashRegister,
-          eventId: insertedEvent._id,
-        },
-      });
-    }
-*/
   } catch (err) {
     console.log('Error', err);
     next(new Error(err));
@@ -135,42 +103,44 @@ router.get('/all/winners', async (req, res) => {
 
 
 // ** For local conversation ** //
-router.get('/:cashRegister', async (req, res) => {
-  const {cashRegister} = req.params;
- 
-/*
-  // Пытаюсь получить ВСЕ сообщения и раскидать на все клиенты
-  sendMessageToAllClients(wss, {
-    type: 'EVENT!!!',
-    data: {}
-  })
-*/
+router.get('/:Event', async (req, res) => {
+  const {Event} = req.params;
+
   try {
     const winnerDivider = config.get('winnerDivider');
     const allEventsCount = await getAllEventsCount();
     const isWinner = (allEventsCount + 1) % winnerDivider === 0;
     const insertedEvent = await insertButtonClickedEvent({
-      cashRegister,
+      Event,
       isWinner,
       divisor: winnerDivider,
+    }); 
+// Отсылаю ивент (любой), без условий
+    res.status(200).send();
+    sendMessageToAllClients(wss, {
+      type: 'NEW_CLICK', // переименовал из LAST_WINNER
+      event: Event,
+      //data: {
+      //  Event,
+        //eventId: insertedEvent._id, 
+        //isWinner,
+      //},
     });
-   /* sendMessageToAllClients(wss, {
-      type: 'EVENT!!!',
-      data: {
-        eventId: insertedEvent._id,
-      }
-    })
-*/
+
+    // Тут была проверка на победителя, убрал
+/*
     if (isWinner) {
       res.status(200).send();
       sendMessageToAllClients(wss, {
-        type: 'LAST_WINNER',
+        type: 'EVENT (OLD WINNER)', // переименовал из LAST_WINNER
         data: {
-          cashRegister,
-          eventId: insertedEvent._id,
+          Event,
+          //eventId: insertedEvent._id,
+          //isWinner,
         },
       });
 
+/* Убрал вывод всех победителей если ивент победитель
       const winnersCount = await getWinnersCountToday();
 
       sendMessageToAllClients(wss, {
@@ -179,18 +149,19 @@ router.get('/:cashRegister', async (req, res) => {
           count: winnersCount,
         },
       });
-      
+
+
     } else {
       res.status(400).send();
       sendMessageToAllClients(wss, {
-        type: 'LAST_LOSER',
+        type: 'EVENT (OLD_LOSER)',
         data: {
-          cashRegister,
-          eventId: insertedEvent._id,
+          Event,
+          //eventId: insertedEvent._id,
         },
       });
     }
-
+*/
   } catch (err) {
     console.log('Error', err);
     next(new Error(err));

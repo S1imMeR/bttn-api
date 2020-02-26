@@ -1,19 +1,17 @@
 import db from './index';
+import WebSocket from 'ws';
+import { sendMessageToAllClients, formatWinners } from '../utils'; 
+import { wss } from '..';
 
 // data: {buttonId: number; cashRegister: string; isWinner: boolean;}
 
 export function insertButtonClickedEvent(data) {
-/*
-  ws.send(JSON.stringify({
-    type: 'TEST2',
-  }));
-*/
+
   return new Promise((resolve, reject) => {
     db.events.insert(data, (err, insertedDocument) => {
       if (err) {
         return reject(err);
       }
-
       return resolve(insertedDocument);
     });
   });
@@ -25,7 +23,6 @@ export function getAllEventsCount() {
       if (err) {
         return reject(err);
       }
-
       return resolve(count);
     });
   });
@@ -37,7 +34,6 @@ export function getLastWinner() {
       if (err) {
         return reject(err);
       }
-
       return resolve(doc);
     });
   });

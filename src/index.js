@@ -11,18 +11,20 @@ import { sendMessageToAllClients, formatWinners } from './utils';
 const app = express();
 const server = http.createServer(app);
 export const wss = new WebSocket.Server({ server });
-
+/*
 Raven.config(config.get('sentryDSN'), {
   captureUnhandledRejections: true,
 }).install();
 
 app.use(Raven.requestHandler());
+*/
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/event', eventRouter);
 
-app.use(Raven.errorHandler());
+//app.use(Raven.errorHandler());
 
 app.get('/health-check', (req, res) => {
   res.status(200).json({
@@ -31,14 +33,13 @@ app.get('/health-check', (req, res) => {
 });
 
 wss.on('connection', async (ws) => {
+  /*
   try {
     const eventsCount = await getAllEventsCount();
-    
+
     ws.send(JSON.stringify({
-      type: 'EVENTS_COUNT_TODAY',
-      data: {
-        count: eventsCount,
-      },
+      type: 'ONCONNECT',
+      count: 'TODAY EVENTS: ' + eventsCount,
     }));
 
     ws.send(JSON.stringify({
@@ -49,19 +50,20 @@ wss.on('connection', async (ws) => {
     console.log('Error while sending list of events');
     console.log(err);
   }
+*/
 
   ws.on('message', (message) => {
     const parsedMessage = JSON.parse(message);
 
-    if (parsedMessage.type !== 'SAVE_OPTIONS' || !parsedMessage.options) {
-      return;
-    }
-
-    const {options} = parsedMessage;
-    
-    if (options.winnerDivider) {
-      config.set('winnerDivider', options.winnerDivider);
-    }
+//    if (parsedMessage.type !== 'SAVE_OPTIONS' || !parsedMessage.options) {
+//      return;
+//    }
+//
+//   const {options} = parsedMessage;
+//    
+//    if (options.winnerDivider) {
+//      config.set('winnerDivider', options.winnerDivider);
+//    }
   });
 
   ws.on('error', (err) => console.log('errored', err));
