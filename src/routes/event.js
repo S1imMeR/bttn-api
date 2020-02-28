@@ -23,7 +23,8 @@ const fun = throttle(
       type: "NEW_CLICK", // переименовал из LAST_WINNER
       event: btnEvent
     }),
-  5000
+  5000,
+  { trailing: false }
 );
 
 router.post("/", async (req, res, next) => {
