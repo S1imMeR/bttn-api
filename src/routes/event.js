@@ -15,7 +15,16 @@ import { wss } from "../index";
 import { sendMessageToAllClients } from "../utils";
 import throttle from "lodash.throttle";
 
+var btnEvent = null;
 const router = Router();
+const fun = throttle(
+  () =>
+    sendMessageToAllClients(wss, {
+      type: "NEW_CLICK", // переименовал из LAST_WINNER
+      event: btnEvent
+    }),
+  5000
+);
 
 router.post("/", async (req, res, next) => {
   const {
@@ -111,29 +120,25 @@ router.get("/all/winners", async (req, res) => {
 });
 
 // ** For local conversation ** //
-router.get(
-  "/:Event",
-  throttle((req, res) => {
-    const { Event } = req.params;
+router.get("/:Event", (req, res) => {
+  const { Event } = req.params;
 
-    try {
-      // const winnerDivider = config.get("winnerDivider");
-      // const allEventsCount = await getAllEventsCount();
-      // const isWinner = (allEventsCount + 1) % winnerDivider === 0;
-      // const insertedEvent = await insertButtonClickedEvent({
-      //   Event,
-      //   isWinner,
-      //   divisor: winnerDivider
-      // });
-      // Отсылаю ивент (любой), без условий
-      // res.status(200).send();
-      sendMessageToAllClients(wss, {
-        type: "NEW_CLICK", // переименовал из LAST_WINNER
-        event: Event
-      });
+  try {
+    // const winnerDivider = config.get("winnerDivider");
+    // const allEventsCount = await getAllEventsCount();
+    // const isWinner = (allEventsCount + 1) % winnerDivider === 0;
+    // const insertedEvent = await insertButtonClickedEvent({
+    //   Event,
+    //   isWinner,
+    //   divisor: winnerDivider
+    // });
+    // Отсылаю ивент (любой), без условий
+    // res.status(200).send();
+    btnEvent = Event;
+    fun();
 
-      // Тут была проверка на победителя, убрал
-      /*
+    // Тут была проверка на победителя, убрал
+    /*
     if (isWinner) {
       res.status(200).send();
       sendMessageToAllClients(wss, {
@@ -167,19 +172,18 @@ router.get(
       });
     }
 */
-    } catch (err) {
-      console.log("Error", err);
-      next(new Error(err));
-    }
+  } catch (err) {
+    console.log("Error", err);
+    next(new Error(err));
+  }
 
-    res
-      .set({
-        Connection: "close",
-        "Content-Length": "0"
-      })
-      .status(200)
-      .send();
-  }, 5000)
-);
+  res
+    .set({
+      Connection: "close",
+      "Content-Length": "0"
+    })
+    .status(200)
+    .send();
+});
 
 export default router;
