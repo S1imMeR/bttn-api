@@ -33,6 +33,13 @@ app.get('/health-check', (req, res) => {
 });
 
 wss.on('connection', async (ws) => {
+  setInterval(() => {
+      try {
+        ws.send(JSON.stringify({event: 'ping', type: 'test'}));
+      } catch (err) {
+
+      }
+  }, 5000);
   /*
   try {
     const eventsCount = await getAllEventsCount();
@@ -54,6 +61,7 @@ wss.on('connection', async (ws) => {
 
   ws.on('message', (message) => {
     const parsedMessage = JSON.parse(message);
+    //console.log(message);
 
 //    if (parsedMessage.type !== 'SAVE_OPTIONS' || !parsedMessage.options) {
 //      return;

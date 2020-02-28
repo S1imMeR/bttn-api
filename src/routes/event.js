@@ -23,7 +23,7 @@ const fun = throttle(
       type: "NEW_CLICK", // переименовал из LAST_WINNER
       event: btnEvent
     }),
-  5000,
+  15000,
   { trailing: false }
 );
 
