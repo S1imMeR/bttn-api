@@ -1,6 +1,7 @@
 export function sendMessageToAllClients(wss, message) {
   const messageObj = JSON.stringify(message);
   //wss.binaryType = 'arraybuffer';
+  console.log("req");
   wss.clients.forEach(client => {
     client.send(messageObj);
   });

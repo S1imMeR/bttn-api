@@ -10,6 +10,7 @@
     "bson": "^1.0.4",
     "configstore": "^3.1.1",
     "express": "^4.16.2",
+    "express-throttle": "^2.0.0",
     "http": "^0.0.0",
     "lodash": "^4.17.15",
     "lodash.throttle": "^4.1.1",

@@ -111,37 +111,29 @@ router.get("/all/winners", async (req, res) => {
 });
 
 // ** For local conversation ** //
-router.get("/:Event", async (req, res) => {
-  const { Event } = req.params;
+router.get(
+  "/:Event",
+  throttle((req, res) => {
+    const { Event } = req.params;
 
-  try {
-    const winnerDivider = config.get("winnerDivider");
-    const allEventsCount = await getAllEventsCount();
-    const isWinner = (allEventsCount + 1) % winnerDivider === 0;
-    const insertedEvent = await insertButtonClickedEvent({
-      Event,
-      isWinner,
-      divisor: winnerDivider
-    });
-    // Отсылаю ивент (любой), без условий
-    // res.status(200).send();
-    const fun = throttle(
-      () =>
-        sendMessageToAllClients(wss, {
-          type: "NEW_CLICK", // переименовал из LAST_WINNER
-          event: Event
-          //data: {
-          //  Event,
-          //eventId: insertedEvent._id,
-          //isWinner,
-          //},
-        }),
-      5000
-    );
-    fun();
+    try {
+      // const winnerDivider = config.get("winnerDivider");
+      // const allEventsCount = await getAllEventsCount();
+      // const isWinner = (allEventsCount + 1) % winnerDivider === 0;
+      // const insertedEvent = await insertButtonClickedEvent({
+      //   Event,
+      //   isWinner,
+      //   divisor: winnerDivider
+      // });
+      // Отсылаю ивент (любой), без условий
+      // res.status(200).send();
+      sendMessageToAllClients(wss, {
+        type: "NEW_CLICK", // переименовал из LAST_WINNER
+        event: Event
+      });
 
-    // Тут была проверка на победителя, убрал
-    /*
+      // Тут была проверка на победителя, убрал
+      /*
     if (isWinner) {
       res.status(200).send();
       sendMessageToAllClients(wss, {
@@ -175,18 +167,19 @@ router.get("/:Event", async (req, res) => {
       });
     }
 */
-  } catch (err) {
-    console.log("Error", err);
-    next(new Error(err));
-  }
+    } catch (err) {
+      console.log("Error", err);
+      next(new Error(err));
+    }
 
-  res
-    .set({
-      Connection: "close",
-      "Content-Length": "0"
-    })
-    .status(200)
-    .send();
-});
+    res
+      .set({
+        Connection: "close",
+        "Content-Length": "0"
+      })
+      .status(200)
+      .send();
+  }, 5000)
+);
 
 export default router;
