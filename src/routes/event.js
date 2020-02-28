@@ -13,7 +13,7 @@ import config from "../config";
 import { sendSuccessToButton, sendFailToButton } from "../api/index";
 import { wss } from "../index";
 import { sendMessageToAllClients } from "../utils";
-import { throttle } from "lodash.throttle";
+import throttle from "lodash.throttle";
 
 const router = Router();
 
@@ -124,20 +124,20 @@ router.get("/:Event", async (req, res) => {
       divisor: winnerDivider
     });
     // Отсылаю ивент (любой), без условий
-    res.status(200).send();
-    const fun = _.throttle(
-      sendMessageToAllClients(wss, {
-        type: "NEW_CLICK", // переименовал из LAST_WINNER
-        event: Event
-        //data: {
-        //  Event,
-        //eventId: insertedEvent._id,
-        //isWinner,
-        //},
-      }),
+    // res.status(200).send();
+    const fun = throttle(
+      () =>
+        sendMessageToAllClients(wss, {
+          type: "NEW_CLICK", // переименовал из LAST_WINNER
+          event: Event
+          //data: {
+          //  Event,
+          //eventId: insertedEvent._id,
+          //isWinner,
+          //},
+        }),
       5000
     );
-
     fun();
 
     // Тут была проверка на победителя, убрал
