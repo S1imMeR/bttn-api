@@ -39,7 +39,7 @@ wss.on('connection', async (ws) => {
       } catch (err) {
 
       }
-  }, 5000);
+  }, 60000);
   /*
   try {
     const eventsCount = await getAllEventsCount();
